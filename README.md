@@ -1,5 +1,7 @@
 # geohash
 
+[![Build Status](https://travis-ci.org/llamadonica/dart-geohash.svg)](https://travis-ci.org/llamadonica/dart-geohash)
+
 A library for geohashing. This is used by elasticsearch and others for geo-queries.
 
 ## Usage
