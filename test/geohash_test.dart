@@ -3,19 +3,26 @@
 
 library geohash.test;
 
+import 'dart:math';
+
 import 'package:geohash/geohash.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('A group of tests', () {
-    Awesome awesome;
-
+  group('Geohashing:', () {
     setUp(() {
-      awesome = new Awesome();
     });
 
-    test('First Test', () {
-      expect(awesome.isAwesome, isTrue);
+    test('Random address', () {
+      expect(Geohash.encode(29.0, 34.5, codeLength: 5), 'sv0sc');
     });
+    test('Random address', () {
+      expect(Geohash.encode(38.5332370,-121.4347070), '9qcehwvbqhp8');
+    });
+    test('Random address', () {
+      expect(new Point(38.5332370,-121.4347070).distanceTo(Geohash.decode('9qcehwvbqhp8')) < 1e-6,
+             isTrue);
+    });
+
   });
 }
