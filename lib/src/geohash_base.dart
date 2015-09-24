@@ -79,18 +79,27 @@ class Geohash {
   ];
   static String encode(double latitude, double longitude,
       {int codeLength: 12}) {
-    if (codeLength > 20) {
+    if (codeLength > 20 || (identical(1.0,1) && codeLength > 12)) {
+      //Javascript can only handle 32 bit ints reliably.
       throw new ArgumentError(
           'latitude and longitude are not precise enough to encode $codeLength characters');
     }
     latitude = (latitude + 90) * (pow(2.0, 52) / 180);
     longitude = (longitude + 180) * (pow(2.0, 52) / 360);
-    int latitudeInt = latitude.floor();
-    int longitudeInt = longitude.floor();
+    int longitudeCode, latitudeCode;
     int longitudeBits = (codeLength ~/ 2) * 5 + (codeLength % 2) * 3;
     int latitudeBits = codeLength * 5 - longitudeBits;
-    int longitudeCode = longitudeInt >> (52 - longitudeBits);
-    int latitudeCode = latitudeInt >> (52 - latitudeBits);
+    if (identical(1.0,1)) { //Test for javascript.
+      latitude /= (pow(2.0, latitudeBits));
+      longitude /= (pow(2.0, longitudeBits));
+      longitudeCode = longitude.floor();
+      latitudeCode = latitude.floor();
+    } else {
+      int latitudeInt = latitude.floor();
+      int longitudeInt = longitude.floor();
+      longitudeCode = longitudeInt >> (52 - longitudeBits);
+      latitudeCode = latitudeInt >> (52 - latitudeBits);
+    }
     var stringBuffer = new List();
     while (codeLength > 0) {
       int code = 0;
@@ -123,7 +132,7 @@ class Geohash {
   static Rectangle getExtents(String geohash) {
     var latitudeInt = 0;
     var longitudeInt = 0;
-    Iterable<String> getStringIterator() => 
+    Iterable<String> getStringIterator() =>
       geohash.codeUnits.map((r) => new String.fromCharCode(r));
     bool longitudeFirst = true;
     for (var character in getStringIterator()) {
@@ -133,7 +142,7 @@ class Geohash {
       } catch (error) {
         throw new ArgumentError('$geohash was not a geohash string');
       }
-      int bigBits = ((thisSequence & 16) >> 2) | ((thisSequence & 4) >> 1) 
+      int bigBits = ((thisSequence & 16) >> 2) | ((thisSequence & 4) >> 1)
                   | (thisSequence & 1);
       int smallBits = ((thisSequence & 8) >> 2) | ((thisSequence & 2) >> 1);
       if (longitudeFirst) {
