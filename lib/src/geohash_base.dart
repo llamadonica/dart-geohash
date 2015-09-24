@@ -90,8 +90,8 @@ class Geohash {
     int longitudeBits = (codeLength ~/ 2) * 5 + (codeLength % 2) * 3;
     int latitudeBits = codeLength * 5 - longitudeBits;
     if (identical(1.0,1)) { //Test for javascript.
-      latitude /= (pow(2.0, latitudeBits));
-      longitude /= (pow(2.0, longitudeBits));
+      latitude /= (pow(2.0, 52 - latitudeBits));
+      longitude /= (pow(2.0, 52 - longitudeBits));
       longitudeCode = longitude.floor();
       latitudeCode = latitude.floor();
     } else {
