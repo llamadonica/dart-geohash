@@ -2,7 +2,7 @@ name: geohash
 description: A simple geohashing library for dart
 version: 0.1.1
 author: Adam Stark <llamadonica@gmail.com>
-#homepage: https://www.example.com
+homepage: https://github.com/llamadonica/dart-geohash
 
 environment:
   sdk: '>=1.0.0 <2.0.0'
