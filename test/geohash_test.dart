@@ -20,7 +20,7 @@ void main() {
       expect(Geohash.encode(38.5332370,-121.4347070), '9qcehwvbqhp8');
     });
     test('Random address', () {
-      expect(new Point(38.5332370,-121.4347070).distanceTo(Geohash.decode('9qcehwvbqhp8')) < 1e-6,
+      expect(const Point<double>(38.5332370,-121.4347070).distanceTo(Geohash.decode('9qcehwvbqhp8')) < 1e-6,
              isTrue);
     });
 

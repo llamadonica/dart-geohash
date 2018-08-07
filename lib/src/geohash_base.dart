@@ -129,7 +129,7 @@ class Geohash {
     return buffer.toString();
   }
 
-  static Rectangle getExtents(String geohash) {
+  static Rectangle<double> getExtents(String geohash) {
     var latitudeInt = 0;
     var longitudeInt = 0;
     Iterable<String> getStringIterator() =>
@@ -165,14 +165,14 @@ class Geohash {
     var longitude = longitudeInt.toDouble() * (360 / pow(2.0, 52)) - 180;
     var height = latitudeDiff.toDouble() * (180 / pow(2.0, 52));
     var width = longitudeDiff.toDouble() * (360 / pow(2.0, 52));
-    return new Rectangle(latitude + height, longitude, height, width);
+    return new Rectangle<double>(latitude + height, longitude, height, width);
     //I know this is backward, but it's because lat/lng are backwards.
   }
 
-  static Point decode(String geohash) {
+  static Point<double> decode(String geohash) {
     var extents = getExtents(geohash);
     var x = extents.left + extents.width / 2;
     var y = extents.bottom + extents.height / 2;
-    return new Point(x,y);
+    return new Point<double>(x,y);
   }
 }
