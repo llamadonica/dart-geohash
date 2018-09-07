@@ -10,21 +10,24 @@ import 'package:test/test.dart';
 
 void main() {
   group('Geohashing:', () {
-    setUp(() {
-    });
+    setUp(() {});
 
     test('Random address', () {
       expect(Geohash.encode(29.0, 34.5, codeLength: 5), 'sv0sc');
     });
     test('Random address', () {
-      expect(const Point<double>(29.0, 34.5).distanceTo(Geohash.decode('sv0sc')), closeTo(0.0, 0.1));
+      expect(
+          const Point<double>(29.0, 34.5).distanceTo(Geohash.decode('sv0sc')),
+          closeTo(0.0, 0.1));
     });
     test('Random address', () {
-      expect(Geohash.encode(38.5332370,-121.4347070), '9qcehwvbqhp8');
+      expect(Geohash.encode(38.5332370, -121.4347070), '9qcehwvbqhp8');
     });
     test('Random address', () {
-      expect(const Point<double>(38.5332370,-121.4347070).distanceTo(Geohash.decode('9qcehwvbqhp8')), closeTo(0.0, 1e-6));
+      expect(
+          const Point<double>(38.5332370, -121.4347070)
+              .distanceTo(Geohash.decode('9qcehwvbqhp8')),
+          closeTo(0.0, 1e-6));
     });
-
   });
 }

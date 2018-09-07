@@ -76,10 +76,11 @@ class Geohash {
     'y',
     'z'
   ];
+
   /// Encode a latitude and longitude pair into a  geohash string.
   static String encode(final double latitude, final double longitude,
       {final int codeLength: 12}) {
-    if (codeLength > 20 || (identical(1.0,1) && codeLength > 12)) {
+    if (codeLength > 20 || (identical(1.0, 1) && codeLength > 12)) {
       //Javascript can only handle 32 bit ints reliably.
       throw new ArgumentError(
           'latitude and longitude are not precise enough to encode $codeLength characters');
@@ -88,15 +89,17 @@ class Geohash {
     final longitudeBase2 = (longitude + 180) * (pow(2.0, 52) / 360);
     final longitudeBits = (codeLength ~/ 2) * 5 + (codeLength % 2) * 3;
     final latitudeBits = codeLength * 5 - longitudeBits;
-    var longitudeCode = (identical(1.0,1)) //Test for javascript.
+    var longitudeCode = (identical(1.0, 1)) //Test for javascript.
         ? (longitudeBase2 / (pow(2.0, 52 - longitudeBits))).floor()
         : longitudeBase2.floor() >> (52 - longitudeBits);
-    var latitudeCode = (identical(1.0,1)) //Test for javascript.
+    var latitudeCode = (identical(1.0, 1)) //Test for javascript.
         ? (latitudeBase2 / (pow(2.0, 52 - latitudeBits))).floor()
         : latitudeBase2.floor() >> (52 - latitudeBits);
 
     final stringBuffer = [];
-    for (var localCodeLength = codeLength; localCodeLength > 0; localCodeLength--) {
+    for (var localCodeLength = codeLength;
+        localCodeLength > 0;
+        localCodeLength--) {
       int bigEndCode, littleEndCode;
       if (localCodeLength % 2 == 0) {
         //Even slot. Latitude is more significant.
@@ -117,15 +120,14 @@ class Geohash {
           ((littleEndCode & 1) << 1);
       stringBuffer.add(_base32NumberToChar[code]);
     }
-    final buffer = new StringBuffer()
-      ..writeAll(stringBuffer.reversed);
+    final buffer = new StringBuffer()..writeAll(stringBuffer.reversed);
     return buffer.toString();
   }
 
   /// Get the rectangle that covers the entire area of a geohash string.
   static Rectangle<double> getExtents(String geohash) {
     final codeLength = geohash.length;
-    if (codeLength > 20 || (identical(1.0,1) && codeLength > 12)) {
+    if (codeLength > 20 || (identical(1.0, 1) && codeLength > 12)) {
       //Javascript can only handle 32 bit ints reliably.
       throw new ArgumentError(
           'latitude and longitude are not precise enough to encode $codeLength characters');
@@ -133,15 +135,17 @@ class Geohash {
     var latitudeInt = 0;
     var longitudeInt = 0;
     var longitudeFirst = true;
-    for (var character in geohash.codeUnits.map((r) => new String.fromCharCode(r))) {
+    for (var character
+        in geohash.codeUnits.map((r) => new String.fromCharCode(r))) {
       int thisSequence;
       try {
         thisSequence = _base32CharToNumber[character];
       } catch (error) {
         throw new ArgumentError('$geohash was not a geohash string');
       }
-      final bigBits = ((thisSequence & 16) >> 2) | ((thisSequence & 4) >> 1)
-                    | (thisSequence & 1);
+      final bigBits = ((thisSequence & 16) >> 2) |
+          ((thisSequence & 4) >> 1) |
+          (thisSequence & 1);
       final smallBits = ((thisSequence & 8) >> 2) | ((thisSequence & 2) >> 1);
       if (longitudeFirst) {
         longitudeInt = (longitudeInt << 3) | bigBits;
@@ -154,18 +158,19 @@ class Geohash {
     }
     final longitudeBits = (codeLength ~/ 2) * 5 + (codeLength % 2) * 3;
     final latitudeBits = codeLength * 5 - longitudeBits;
-    if (identical(1.0,1)) {
+    if (identical(1.0, 1)) {
       // Some of our intermediate numbers are STILL too big for javascript,
       // so  we use floating point math...
       final longitudeDiff = pow(2.0, 52 - longitudeBits);
-      final latitudeDiff  = pow(2.0, 52 - latitudeBits);
-      final latitudeFloat = latitudeInt.toDouble()*latitudeDiff;
-      final longitudeFloat = longitudeInt.toDouble()*longitudeDiff;
+      final latitudeDiff = pow(2.0, 52 - latitudeBits);
+      final latitudeFloat = latitudeInt.toDouble() * latitudeDiff;
+      final longitudeFloat = longitudeInt.toDouble() * longitudeDiff;
       final latitude = latitudeFloat * (180 / pow(2.0, 52)) - 90;
       final longitude = longitudeFloat * (360 / pow(2.0, 52)) - 180;
       final height = latitudeDiff * (180 / pow(2.0, 52));
       final width = longitudeDiff * (360 / pow(2.0, 52));
-      return Rectangle<double>(latitude + height, longitude, height.toDouble(), width.toDouble());
+      return Rectangle<double>(
+          latitude + height, longitude, height.toDouble(), width.toDouble());
     }
 
     longitudeInt = longitudeInt << (52 - longitudeBits);
@@ -185,6 +190,6 @@ class Geohash {
     final extents = getExtents(geohash);
     final x = extents.left + extents.width / 2;
     final y = extents.bottom + extents.height / 2;
-    return new Point<double>(x,y);
+    return new Point<double>(x, y);
   }
 }
