@@ -4,4 +4,3 @@
 library geohash.example;
 
 import 'package:geohash/geohash.dart';
-
