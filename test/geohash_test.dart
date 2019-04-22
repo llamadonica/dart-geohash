@@ -29,5 +29,10 @@ void main() {
               .distanceTo(Geohash.decode('9qcehwvbqhp8')),
           closeTo(0.0, 1e-6));
     });
+    test('Wikipedia example', () {
+      final decodedCoordinates = Geohash.decode('ezs42');
+      final expectedResult = const Point<double>(42.605, -5.603);
+      expect(decodedCoordinates.distanceTo(expectedResult), closeTo(0.0, 1e-4));
+    });
   });
 }

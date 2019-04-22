@@ -82,7 +82,7 @@ class Geohash {
       {final int codeLength: 12}) {
     if (codeLength > 20 || (identical(1.0, 1) && codeLength > 12)) {
       //Javascript can only handle 32 bit ints reliably.
-      throw new ArgumentError(
+      throw ArgumentError(
           'latitude and longitude are not precise enough to encode $codeLength characters');
     }
     final latitudeBase2 = (latitude + 90) * (pow(2.0, 52) / 180);
@@ -129,7 +129,7 @@ class Geohash {
     final codeLength = geohash.length;
     if (codeLength > 20 || (identical(1.0, 1) && codeLength > 12)) {
       //Javascript can only handle 32 bit ints reliably.
-      throw new ArgumentError(
+      throw ArgumentError(
           'latitude and longitude are not precise enough to encode $codeLength characters');
     }
     var latitudeInt = 0;
@@ -140,8 +140,8 @@ class Geohash {
       int thisSequence;
       try {
         thisSequence = _base32CharToNumber[character];
-      } catch (error) {
-        throw new ArgumentError('$geohash was not a geohash string');
+      } on Exception catch (_) {
+        throw ArgumentError('$geohash was not a geohash string');
       }
       final bigBits = ((thisSequence & 16) >> 2) |
           ((thisSequence & 4) >> 1) |
@@ -170,7 +170,7 @@ class Geohash {
       final height = latitudeDiff * (180 / pow(2.0, 52));
       final width = longitudeDiff * (360 / pow(2.0, 52));
       return Rectangle<double>(
-          latitude + height, longitude, height.toDouble(), width.toDouble());
+          latitude, longitude, height.toDouble(), width.toDouble());
     }
 
     longitudeInt = longitudeInt << (52 - longitudeBits);
@@ -181,15 +181,15 @@ class Geohash {
     final longitude = longitudeInt.toDouble() * (360 / pow(2.0, 52)) - 180;
     final height = latitudeDiff.toDouble() * (180 / pow(2.0, 52));
     final width = longitudeDiff.toDouble() * (360 / pow(2.0, 52));
-    return Rectangle<double>(latitude + height, longitude, height, width);
+    return Rectangle<double>(latitude, longitude, height, width);
     //I know this is backward, but it's because lat/lng are backwards.
   }
 
-  /// Get a single number that is the center of a specific geohas rectangle.
+  /// Get a single number that is the center of a specific geohash rectangle.
   static Point<double> decode(String geohash) {
     final extents = getExtents(geohash);
     final x = extents.left + extents.width / 2;
-    final y = extents.bottom + extents.height / 2;
-    return new Point<double>(x, y);
+    final y = extents.top + extents.height / 2;
+    return Point<double>(x, y);
   }
 }
