@@ -5,7 +5,7 @@ library geo_hash_xy.test;
 
 import 'dart:math';
 
-import 'package:geo_hash/geo_hash_xy.dart';
+import 'package:geo_hash_xy/geo_hash_xy.dart';
 import 'package:test/test.dart';
 
 void main() {

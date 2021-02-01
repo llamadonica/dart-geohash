@@ -1,4 +1,6 @@
 # Changelog
+## 0.2.2
+- Documentation updates.
 
 ## 0.2.1
 - Some fixes for use in javascript.
