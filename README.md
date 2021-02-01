@@ -1,9 +1,8 @@
-# geohash
-
-[![Build Status](https://travis-ci.org/llamadonica/dart-geohash.svg)](https://travis-ci.org/llamadonica/dart-geohash)
-[![Coverage Status](https://coveralls.io/repos/llamadonica/dart-geohash/badge.svg?branch=master&service=github)](https://coveralls.io/github/llamadonica/dart-geohash?branch=master)
+# geo_hash
 
 A library for geohashing. This is used by elasticsearch and others for geo-queries.
+
+This is a direct fork of geohash (https://pub.dev/packages/geohash) with some bug fixes as the project appears abandoned.
 
 ## Usage
 
@@ -20,4 +19,4 @@ A simple usage example:
 
 Please file feature requests and bugs at the [issue tracker][tracker].
 
-[tracker]: https://github.com/llamadonica/dart-geohash/issues
+[tracker]: https://github.com/BMEC/dart-geo_hash/issues

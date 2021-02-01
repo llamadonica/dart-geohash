@@ -8,8 +8,8 @@ if [ "$COVERALLS_TOKEN" ]; then
     --token $COVERALLS_TOKEN \
     --retry 2 \
     --exclude-test-files \
-    test/geohash_test.dart
+    test/geo_hash_test.dart
 else
   # run tests locally
-  dart --checked test/geohash_test.dart
+  dart --checked test/geo_hash_test.dart
 fi
