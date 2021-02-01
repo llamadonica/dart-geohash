@@ -1,4 +1,7 @@
 # Changelog
+## 0.2.3
+- Switched to named parameters
+
 ## 0.2.2
 - Documentation updates.
 

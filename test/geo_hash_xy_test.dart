@@ -13,7 +13,8 @@ void main() {
     setUp(() {});
 
     test('Random address', () {
-      expect(Geohash.encode(29.0, 34.5, codeLength: 5), 'sv0sc');
+      expect(Geohash.encode(latitude: 29.0, longitude: 34.5, codeLength: 5),
+          'sv0sc');
     });
     test('Random address', () {
       expect(
@@ -21,7 +22,8 @@ void main() {
           closeTo(0.0, 0.1));
     });
     test('Random address', () {
-      expect(Geohash.encode(38.5332370, -121.4347070), '9qcehwvbqhp8');
+      expect(Geohash.encode(latitude: 38.5332370, longitude: -121.4347070),
+          '9qcehwvbqhp8');
     });
     test('Random address', () {
       expect(

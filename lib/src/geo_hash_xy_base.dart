@@ -5,6 +5,8 @@ library geohash.base;
 
 import 'dart:math';
 
+import 'package:meta/meta.dart';
+
 /// A collection of static functions to work with geohashes, as exlpained
 /// [here](https://en.wikipedia.org/wiki/Geohash)
 class Geohash {
@@ -78,8 +80,10 @@ class Geohash {
   ];
 
   /// Encode a latitude and longitude pair into a  geohash string.
-  static String encode(final double latitude, final double longitude,
-      {final int codeLength: 12}) {
+  static String encode(
+      {@required final double longitude,
+      @required final double latitude,
+      final int codeLength: 12}) {
     if (codeLength > 20 || (identical(1.0, 1) && codeLength > 12)) {
       //Javascript can only handle 32 bit ints reliably.
       throw ArgumentError(
