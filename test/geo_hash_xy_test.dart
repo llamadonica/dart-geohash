@@ -1,11 +1,11 @@
 // Copyright (c) 2015, <your name>. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
-library geo_hash.test;
+library geo_hash_xy.test;
 
 import 'dart:math';
 
-import 'package:geo_hash/geo_hash.dart';
+import 'package:geo_hash/geo_hash_xy.dart';
 import 'package:test/test.dart';
 
 void main() {

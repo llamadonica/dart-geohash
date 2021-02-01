@@ -1,4 +1,4 @@
-# geo_hash
+# geo_hash_xy
 
 A library for geohashing. This is used by elasticsearch and others for geo-queries.
 
@@ -19,4 +19,4 @@ A simple usage example:
 
 Please file feature requests and bugs at the [issue tracker][tracker].
 
-[tracker]: https://github.com/BMEC/dart-geo_hash/issues
+[tracker]: https://github.com/BMEC/dart-geo_hash_xy/issues
