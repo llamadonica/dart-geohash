@@ -170,10 +170,6 @@ class Geohash {
       final height = latitudeDiff * (180 / pow(2.0, 52));
       final width = longitudeDiff * (360 / pow(2.0, 52));
 
-      print("latitude: $latitude");
-      print("longitude: $longitude");
-      print("height: $height");
-      print("width: $width");
       return Rectangle<double>(
           longitude, latitude, width.toDouble(), height.toDouble());
     }
