@@ -1,7 +1,7 @@
 // Copyright (c) 2015-2018, <your name>. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
-library geohash.base;
+library geo_hash_xy.base;
 
 import 'dart:math';
 
@@ -9,7 +9,7 @@ import 'package:meta/meta.dart';
 
 /// A collection of static functions to work with geohashes, as exlpained
 /// [here](https://en.wikipedia.org/wiki/Geohash)
-class Geohash {
+class GeoHash {
   static const Map<String, int> _base32CharToNumber = const <String, int>{
     '0': 0,
     '1': 1,
@@ -79,16 +79,19 @@ class Geohash {
     'z'
   ];
 
-  /// Encode a latitude and longitude pair into a  geohash string.
+  /// Encode a [latLng] into a  geoHash string.
   static String encode(
-      {@required final double longitude,
-      @required final double latitude,
-      final int codeLength: 12}) {
+      {@required final LatLng latLng, final int codeLength: 12}) {
     if (codeLength > 20 || (identical(1.0, 1) && codeLength > 12)) {
       //Javascript can only handle 32 bit ints reliably.
       throw ArgumentError(
           'latitude and longitude are not precise enough to encode $codeLength characters');
     }
+
+    final latitude = latLng.lat;
+
+    final longitude = latLng.lng;
+
     final latitudeBase2 = (latitude + 90) * (pow(2.0, 52) / 180);
     final longitudeBase2 = (longitude + 180) * (pow(2.0, 52) / 360);
     final longitudeBits = (codeLength ~/ 2) * 5 + (codeLength % 2) * 3;
@@ -128,9 +131,9 @@ class Geohash {
     return buffer.toString();
   }
 
-  /// Get the rectangle that covers the entire area of a geohash string.
-  static Rectangle<double> getExtents(String geohash) {
-    final codeLength = geohash.length;
+  /// Get the [LatLngBounds] for the [geoHash].
+  static LatLngBounds getExtents(String geoHash) {
+    final codeLength = geoHash.length;
     if (codeLength > 20 || (identical(1.0, 1) && codeLength > 12)) {
       //Javascript can only handle 32 bit ints reliably.
       throw ArgumentError(
@@ -140,12 +143,12 @@ class Geohash {
     var longitudeInt = 0;
     var longitudeFirst = true;
     for (var character
-        in geohash.codeUnits.map((r) => new String.fromCharCode(r))) {
+        in geoHash.codeUnits.map((r) => new String.fromCharCode(r))) {
       int thisSequence;
       try {
         thisSequence = _base32CharToNumber[character];
       } on Exception catch (_) {
-        throw ArgumentError('$geohash was not a geohash string');
+        throw ArgumentError('$geoHash was not a geohash string');
       }
       final bigBits = ((thisSequence & 16) >> 2) |
           ((thisSequence & 4) >> 1) |
@@ -169,31 +172,77 @@ class Geohash {
       final latitudeDiff = pow(2.0, 52 - latitudeBits);
       final latitudeFloat = latitudeInt.toDouble() * latitudeDiff;
       final longitudeFloat = longitudeInt.toDouble() * longitudeDiff;
-      final latitude = latitudeFloat * (180 / pow(2.0, 52)) - 90;
-      final longitude = longitudeFloat * (360 / pow(2.0, 52)) - 180;
+      final northWestLatitude = latitudeFloat * (180 / pow(2.0, 52)) - 90;
+      final northWestLongitude = longitudeFloat * (360 / pow(2.0, 52)) - 180;
       final height = latitudeDiff * (180 / pow(2.0, 52));
       final width = longitudeDiff * (360 / pow(2.0, 52));
 
-      return Rectangle<double>(
-          longitude, latitude, width.toDouble(), height.toDouble());
+      final southWest = LatLng(
+          lat: northWestLatitude - height.toDouble(), lng: northWestLongitude);
+      final northEast = LatLng(
+          lat: northWestLatitude, lng: northWestLongitude + width.toDouble());
+
+      return LatLngBounds(southWest: southWest, northEast: northEast);
     }
 
     longitudeInt = longitudeInt << (52 - longitudeBits);
     latitudeInt = latitudeInt << (52 - latitudeBits);
     final longitudeDiff = 1 << (52 - longitudeBits);
     final latitudeDiff = 1 << (52 - latitudeBits);
-    final latitude = latitudeInt.toDouble() * (180 / pow(2.0, 52)) - 90;
-    final longitude = longitudeInt.toDouble() * (360 / pow(2.0, 52)) - 180;
+    final northWestLatitude =
+        latitudeInt.toDouble() * (180 / pow(2.0, 52)) - 90;
+    final northWestLongitude =
+        longitudeInt.toDouble() * (360 / pow(2.0, 52)) - 180;
     final height = latitudeDiff.toDouble() * (180 / pow(2.0, 52));
     final width = longitudeDiff.toDouble() * (360 / pow(2.0, 52));
-    return Rectangle<double>(longitude, latitude, width, height);
+
+    final southWest =
+        LatLng(lat: northWestLatitude - height, lng: northWestLongitude);
+    final northEast =
+        LatLng(lat: northWestLatitude, lng: northWestLongitude + width);
+
+    return LatLngBounds(southWest: southWest, northEast: northEast);
   }
 
-  /// Get a single number that is the center of a specific geohas rectangle.
-  static Point<double> decode(String geohash) {
-    final extents = getExtents(geohash);
-    final x = extents.left + extents.width / 2;
-    final y = extents.bottom - extents.height / 2;
-    return new Point<double>(x, y);
+  /// Get the [LatLng] center of a specific [geoHash] rectangle.
+  static LatLng decode(String geoHash) => getExtents(geoHash).center;
+}
+
+/// Holds a coordinate point.
+class LatLng {
+  /// Create a new instance of [LatLng].
+  LatLng({@required this.lat, @required this.lng});
+
+  /// Latitude of the point.
+  final double lat;
+
+  /// Longitude of the point.
+  final double lng;
+}
+
+/// Holds a coordinate bounds.
+class LatLngBounds {
+  /// Create a new instance of [LatLngBounds].
+  LatLngBounds({@required this.southWest, @required this.northEast}) {
+    print(width);
+    print(height);
+    print("center ${center.lat} ${center.lng}");
+    print("southWest ${southWest.lat} ${southWest.lng}");
   }
+
+  /// SouthWest corner of the bounds.
+  final LatLng southWest;
+
+  /// NorthEast corner of the bounds.
+  final LatLng northEast;
+
+  /// Width of the bounds.
+  double get width => northEast.lng - southWest.lng;
+
+  /// Height of the bounds
+  double get height => northEast.lat - southWest.lat;
+
+  /// Center of the bounds
+  LatLng get center =>
+      LatLng(lat: southWest.lat + width / 2, lng: southWest.lng + height / 2);
 }

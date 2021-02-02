@@ -13,28 +13,41 @@ void main() {
     setUp(() {});
 
     test('Random address', () {
-      expect(Geohash.encode(latitude: 29.0, longitude: 34.5, codeLength: 5),
+      expect(
+          GeoHash.encode(latLng: LatLng(lat: 29.0, lng: 34.5), codeLength: 5),
           'sv0sc');
     });
     test('Random address', () {
       expect(
-          const Point<double>(34.5, 29.0).distanceTo(Geohash.decode('sv0sc')),
+          _testDistance(LatLng(lat: 29.0, lng: 34.5), GeoHash.decode('sv0sc')),
           closeTo(0.0, 0.1));
     });
     test('Random address', () {
-      expect(Geohash.encode(latitude: 38.5332370, longitude: -121.4347070),
+      expect(GeoHash.encode(latLng: LatLng(lat: 38.5332370, lng: -121.4347070)),
           '9qcehwvbqhp8');
     });
     test('Random address', () {
       expect(
-          const Point<double>(-121.4347070, 38.5332370)
-              .distanceTo(Geohash.decode('9qcehwvbqhp8')),
+          _testDistance(LatLng(lat: 38.5332370, lng: -121.4347070),
+              GeoHash.decode('9qcehwvbqhp8')),
           closeTo(0.0, 1e-6));
     });
     test('Wikipedia example', () {
-      final decodedCoordinates = Geohash.decode('ezs42');
-      final expectedResult = const Point<double>(-5.603, 42.605);
-      expect(decodedCoordinates.distanceTo(expectedResult), closeTo(0.0, 1e-4));
+      expect(
+          _testDistance(
+              LatLng(lat: 42.605, lng: -5.603), GeoHash.decode('ezs42')),
+          closeTo(0.0, 1e-4));
     });
   });
+}
+
+/// Computes the "distance" between two points using pythagoras and not
+/// accounting for the curvature of the earth.
+double _testDistance(LatLng latLngA, LatLng latLngB) {
+  print("latLngA ${latLngA.lat} ${latLngA.lng}");
+  print("latLngB ${latLngB.lat} ${latLngB.lng}");
+  print("latLngB.lat - latLngA.lat ${latLngB.lat - latLngA.lat}");
+  print("latLngB.lng - latLngA.lng ${latLngB.lng - latLngA.lng}");
+  return sqrt(
+      pow(latLngB.lat - latLngA.lat, 2) + pow(latLngB.lng - latLngA.lng, 2));
 }

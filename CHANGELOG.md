@@ -1,4 +1,8 @@
 # Changelog
+## 0.2.4
+- Replaced Point and Rectangle with LatLng and LatLngBounds from google maps library.
+- Added encodeFromBounds.
+
 ## 0.2.3
 - Switched to named parameters
 
