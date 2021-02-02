@@ -7,7 +7,7 @@ import 'dart:math';
 
 import 'package:meta/meta.dart';
 
-/// A collection of static functions to work with geohashes, as exlpained
+/// A collection of static functions to work with geoHashes, as explained
 /// [here](https://en.wikipedia.org/wiki/Geohash)
 class GeoHash {
   static const Map<String, int> _base32CharToNumber = const <String, int>{
@@ -148,7 +148,7 @@ class GeoHash {
       try {
         thisSequence = _base32CharToNumber[character];
       } on Exception catch (_) {
-        throw ArgumentError('$geoHash was not a geohash string');
+        throw ArgumentError('$geoHash was not a geoHash string');
       }
       final bigBits = ((thisSequence & 16) >> 2) |
           ((thisSequence & 4) >> 1) |
@@ -172,36 +172,35 @@ class GeoHash {
       final latitudeDiff = pow(2.0, 52 - latitudeBits);
       final latitudeFloat = latitudeInt.toDouble() * latitudeDiff;
       final longitudeFloat = longitudeInt.toDouble() * longitudeDiff;
-      final northWestLatitude = latitudeFloat * (180 / pow(2.0, 52)) - 90;
-      final northWestLongitude = longitudeFloat * (360 / pow(2.0, 52)) - 180;
+      final southWestLatitude = latitudeFloat * (180 / pow(2.0, 52)) - 90;
+      final southWestLongitude = longitudeFloat * (360 / pow(2.0, 52)) - 180;
       final height = latitudeDiff * (180 / pow(2.0, 52));
       final width = longitudeDiff * (360 / pow(2.0, 52));
 
-      final southWest = LatLng(
-          lat: northWestLatitude - height.toDouble(), lng: northWestLongitude);
+      final southWest = LatLng(lat: southWestLatitude, lng: southWestLongitude);
       final northEast = LatLng(
-          lat: northWestLatitude, lng: northWestLongitude + width.toDouble());
+          lat: southWestLatitude + height.toDouble(),
+          lng: southWestLongitude + width.toDouble());
 
-      return LatLngBounds(southWest: southWest, northEast: northEast);
+      return LatLngBounds(sw: southWest, ne: northEast);
     }
 
     longitudeInt = longitudeInt << (52 - longitudeBits);
     latitudeInt = latitudeInt << (52 - latitudeBits);
     final longitudeDiff = 1 << (52 - longitudeBits);
     final latitudeDiff = 1 << (52 - latitudeBits);
-    final northWestLatitude =
+    final southWestLatitude =
         latitudeInt.toDouble() * (180 / pow(2.0, 52)) - 90;
-    final northWestLongitude =
+    final southWestLongitude =
         longitudeInt.toDouble() * (360 / pow(2.0, 52)) - 180;
     final height = latitudeDiff.toDouble() * (180 / pow(2.0, 52));
     final width = longitudeDiff.toDouble() * (360 / pow(2.0, 52));
 
-    final southWest =
-        LatLng(lat: northWestLatitude - height, lng: northWestLongitude);
-    final northEast =
-        LatLng(lat: northWestLatitude, lng: northWestLongitude + width);
+    final southWest = LatLng(lat: southWestLatitude, lng: southWestLongitude);
+    final northEast = LatLng(
+        lat: southWestLatitude + height, lng: southWestLongitude + width);
 
-    return LatLngBounds(southWest: southWest, northEast: northEast);
+    return LatLngBounds(sw: southWest, ne: northEast);
   }
 
   /// Get the [LatLng] center of a specific [geoHash] rectangle.
@@ -213,36 +212,51 @@ class LatLng {
   /// Create a new instance of [LatLng].
   LatLng({@required this.lat, @required this.lng});
 
+  /// Creates an instance from json.
+  factory LatLng.fromJson(Map<String, dynamic> json) => LatLng(
+      // ignore: avoid_as
+      lat: (json['lat'] as num)?.toDouble(),
+      // ignore: avoid_as
+      lng: (json['lng'] as num)?.toDouble());
+
   /// Latitude of the point.
   final double lat;
 
   /// Longitude of the point.
   final double lng;
+
+  /// Returns the json form of the object.
+  Map<String, dynamic> toJson() => {'lat': lat, 'lng': lng};
 }
 
 /// Holds a coordinate bounds.
 class LatLngBounds {
   /// Create a new instance of [LatLngBounds].
-  LatLngBounds({@required this.southWest, @required this.northEast}) {
-    print(width);
-    print(height);
-    print("center ${center.lat} ${center.lng}");
-    print("southWest ${southWest.lat} ${southWest.lng}");
-  }
+  LatLngBounds({@required this.sw, @required this.ne});
+
+  /// Creates an instance from json.
+  factory LatLngBounds.fromJson(Map<String, dynamic> json) => LatLngBounds(
+      // ignore: avoid_as
+      sw: LatLng.fromJson(json['sw'] as Map<String, dynamic>),
+      // ignore: avoid_as
+      ne: LatLng.fromJson(json['ne'] as Map<String, dynamic>));
 
   /// SouthWest corner of the bounds.
-  final LatLng southWest;
+  final LatLng sw;
 
   /// NorthEast corner of the bounds.
-  final LatLng northEast;
+  final LatLng ne;
 
   /// Width of the bounds.
-  double get width => northEast.lng - southWest.lng;
+  double get width => ne.lng - sw.lng;
 
   /// Height of the bounds
-  double get height => northEast.lat - southWest.lat;
+  double get height => ne.lat - sw.lat;
 
   /// Center of the bounds
   LatLng get center =>
-      LatLng(lat: southWest.lat + width / 2, lng: southWest.lng + height / 2);
+      LatLng(lat: sw.lat + height / 2, lng: sw.lng + width / 2);
+
+  /// Returns the json form of the object.
+  Map<String, dynamic> toJson() => {'sw': sw.toJson(), 'ne': ne.toJson()};
 }

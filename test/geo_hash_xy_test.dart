@@ -38,16 +38,32 @@ void main() {
               LatLng(lat: 42.605, lng: -5.603), GeoHash.decode('ezs42')),
           closeTo(0.0, 1e-4));
     });
+
+    test('To json', () {
+      expect(
+          LatLngBounds(ne: LatLng(lat: 1, lng: 2), sw: LatLng(lat: -3, lng: -4))
+              .toJson(),
+          {
+            'ne': {'lat': 1, 'lng': 2},
+            'sw': {'lat': -3, 'lng': -4}
+          });
+    });
+
+    test('From json', () {
+      expect(
+          LatLngBounds.fromJson({
+            'ne': {'lat': 1, 'lng': 2},
+            'sw': {'lat': -3, 'lng': -4}
+          }).toJson(),
+          {
+            'ne': {'lat': 1, 'lng': 2},
+            'sw': {'lat': -3, 'lng': -4}
+          });
+    });
   });
 }
 
 /// Computes the "distance" between two points using pythagoras and not
 /// accounting for the curvature of the earth.
-double _testDistance(LatLng latLngA, LatLng latLngB) {
-  print("latLngA ${latLngA.lat} ${latLngA.lng}");
-  print("latLngB ${latLngB.lat} ${latLngB.lng}");
-  print("latLngB.lat - latLngA.lat ${latLngB.lat - latLngA.lat}");
-  print("latLngB.lng - latLngA.lng ${latLngB.lng - latLngA.lng}");
-  return sqrt(
-      pow(latLngB.lat - latLngA.lat, 2) + pow(latLngB.lng - latLngA.lng, 2));
-}
+double _testDistance(LatLng latLngA, LatLng latLngB) =>
+    sqrt(pow(latLngB.lat - latLngA.lat, 2) + pow(latLngB.lng - latLngA.lng, 2));
