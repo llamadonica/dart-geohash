@@ -1,13 +1,15 @@
 // Copyright (c) 2015-2018, <your name>. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
-library geohash.base;
+library geo_hash_xy.base;
 
 import 'dart:math';
 
-/// A collection of static functions to work with geohashes, as exlpained
+import 'package:meta/meta.dart';
+
+/// A collection of static functions to work with geoHashes, as explained
 /// [here](https://en.wikipedia.org/wiki/Geohash)
-class Geohash {
+class GeoHash {
   static const Map<String, int> _base32CharToNumber = const <String, int>{
     '0': 0,
     '1': 1,
@@ -77,14 +79,19 @@ class Geohash {
     'z'
   ];
 
-  /// Encode a latitude and longitude pair into a  geohash string.
-  static String encode(final double latitude, final double longitude,
-      {final int codeLength: 12}) {
+  /// Encode a [latLng] into a  geoHash string.
+  static String encode(
+      {@required final GeoHashLatLng latLng, final int codeLength: 12}) {
     if (codeLength > 20 || (identical(1.0, 1) && codeLength > 12)) {
       //Javascript can only handle 32 bit ints reliably.
-      throw new ArgumentError(
+      throw ArgumentError(
           'latitude and longitude are not precise enough to encode $codeLength characters');
     }
+
+    final latitude = latLng.lat;
+
+    final longitude = latLng.lng;
+
     final latitudeBase2 = (latitude + 90) * (pow(2.0, 52) / 180);
     final longitudeBase2 = (longitude + 180) * (pow(2.0, 52) / 360);
     final longitudeBits = (codeLength ~/ 2) * 5 + (codeLength % 2) * 3;
@@ -124,24 +131,24 @@ class Geohash {
     return buffer.toString();
   }
 
-  /// Get the rectangle that covers the entire area of a geohash string.
-  static Rectangle<double> getExtents(String geohash) {
-    final codeLength = geohash.length;
+  /// Get the [GeoHashLatLngBounds] for the [geoHash].
+  static GeoHashLatLngBounds getExtents(String geoHash) {
+    final codeLength = geoHash.length;
     if (codeLength > 20 || (identical(1.0, 1) && codeLength > 12)) {
       //Javascript can only handle 32 bit ints reliably.
-      throw new ArgumentError(
+      throw ArgumentError(
           'latitude and longitude are not precise enough to encode $codeLength characters');
     }
     var latitudeInt = 0;
     var longitudeInt = 0;
     var longitudeFirst = true;
     for (var character
-        in geohash.codeUnits.map((r) => new String.fromCharCode(r))) {
+        in geoHash.codeUnits.map((r) => new String.fromCharCode(r))) {
       int thisSequence;
       try {
         thisSequence = _base32CharToNumber[character];
-      } catch (error) {
-        throw new ArgumentError('$geohash was not a geohash string');
+      } on Exception catch (_) {
+        throw ArgumentError('$geoHash was not a geoHash string');
       }
       final bigBits = ((thisSequence & 16) >> 2) |
           ((thisSequence & 4) >> 1) |
@@ -165,31 +172,94 @@ class Geohash {
       final latitudeDiff = pow(2.0, 52 - latitudeBits);
       final latitudeFloat = latitudeInt.toDouble() * latitudeDiff;
       final longitudeFloat = longitudeInt.toDouble() * longitudeDiff;
-      final latitude = latitudeFloat * (180 / pow(2.0, 52)) - 90;
-      final longitude = longitudeFloat * (360 / pow(2.0, 52)) - 180;
+      final southWestLatitude = latitudeFloat * (180 / pow(2.0, 52)) - 90;
+      final southWestLongitude = longitudeFloat * (360 / pow(2.0, 52)) - 180;
       final height = latitudeDiff * (180 / pow(2.0, 52));
       final width = longitudeDiff * (360 / pow(2.0, 52));
-      return Rectangle<double>(
-          latitude + height, longitude, height.toDouble(), width.toDouble());
+
+      final southWest =
+          GeoHashLatLng(lat: southWestLatitude, lng: southWestLongitude);
+      final northEast = GeoHashLatLng(
+          lat: southWestLatitude + height.toDouble(),
+          lng: southWestLongitude + width.toDouble());
+
+      return GeoHashLatLngBounds(sw: southWest, ne: northEast);
     }
 
     longitudeInt = longitudeInt << (52 - longitudeBits);
     latitudeInt = latitudeInt << (52 - latitudeBits);
     final longitudeDiff = 1 << (52 - longitudeBits);
     final latitudeDiff = 1 << (52 - latitudeBits);
-    final latitude = latitudeInt.toDouble() * (180 / pow(2.0, 52)) - 90;
-    final longitude = longitudeInt.toDouble() * (360 / pow(2.0, 52)) - 180;
+    final southWestLatitude =
+        latitudeInt.toDouble() * (180 / pow(2.0, 52)) - 90;
+    final southWestLongitude =
+        longitudeInt.toDouble() * (360 / pow(2.0, 52)) - 180;
     final height = latitudeDiff.toDouble() * (180 / pow(2.0, 52));
     final width = longitudeDiff.toDouble() * (360 / pow(2.0, 52));
-    return Rectangle<double>(latitude + height, longitude, height, width);
-    //I know this is backward, but it's because lat/lng are backwards.
+
+    final southWest =
+        GeoHashLatLng(lat: southWestLatitude, lng: southWestLongitude);
+    final northEast = GeoHashLatLng(
+        lat: southWestLatitude + height, lng: southWestLongitude + width);
+
+    return GeoHashLatLngBounds(sw: southWest, ne: northEast);
   }
 
-  /// Get a single number that is the center of a specific geohas rectangle.
-  static Point<double> decode(String geohash) {
-    final extents = getExtents(geohash);
-    final x = extents.left + extents.width / 2;
-    final y = extents.bottom + extents.height / 2;
-    return new Point<double>(x, y);
-  }
+  /// Get the [GeoHashLatLng] center of a specific [geoHash] rectangle.
+  static GeoHashLatLng decode(String geoHash) => getExtents(geoHash).center;
+}
+
+/// Holds a coordinate point.
+class GeoHashLatLng {
+  /// Create a new instance of [GeoHashLatLng].
+  GeoHashLatLng({@required this.lat, @required this.lng});
+
+  /// Creates an instance from json.
+  factory GeoHashLatLng.fromJson(Map<String, dynamic> json) => GeoHashLatLng(
+      // ignore: avoid_as
+      lat: (json['lat'] as num)?.toDouble(),
+      // ignore: avoid_as
+      lng: (json['lng'] as num)?.toDouble());
+
+  /// Latitude of the point.
+  final double lat;
+
+  /// Longitude of the point.
+  final double lng;
+
+  /// Returns the json form of the object.
+  Map<String, dynamic> toJson() => {'lat': lat, 'lng': lng};
+}
+
+/// Holds a coordinate bounds.
+class GeoHashLatLngBounds {
+  /// Create a new instance of [GeoHashLatLngBounds].
+  GeoHashLatLngBounds({@required this.sw, @required this.ne});
+
+  /// Creates an instance from json.
+  factory GeoHashLatLngBounds.fromJson(Map<String, dynamic> json) =>
+      GeoHashLatLngBounds(
+          // ignore: avoid_as
+          sw: GeoHashLatLng.fromJson(json['sw'] as Map<String, dynamic>),
+          // ignore: avoid_as
+          ne: GeoHashLatLng.fromJson(json['ne'] as Map<String, dynamic>));
+
+  /// SouthWest corner of the bounds.
+  final GeoHashLatLng sw;
+
+  /// NorthEast corner of the bounds.
+  final GeoHashLatLng ne;
+
+  /// Width of the bounds.
+  double get width => ne.lng - sw.lng;
+
+  /// Height of the bounds
+  double get height => ne.lat - sw.lat;
+
+  /// Center of the bounds
+  GeoHashLatLng get center =>
+      GeoHashLatLng(lat: sw.lat + height / 2, lng: sw.lng + width / 2);
+
+  /// Returns the json form of the object.
+  Map<String, dynamic> toJson() => {'sw': sw.toJson(), 'ne': ne.toJson()};
 }
