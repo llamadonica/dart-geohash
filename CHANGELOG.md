@@ -1,4 +1,7 @@
 # Changelog
+## 0.2.5
+- Renamed classes to avoid conflicts with google maps library.
+
 ## 0.2.4
 - Replaced Point and Rectangle with LatLng and LatLngBounds from google maps library.
 - Added encodeFromBounds.

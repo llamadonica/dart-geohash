@@ -81,7 +81,7 @@ class GeoHash {
 
   /// Encode a [latLng] into a  geoHash string.
   static String encode(
-      {@required final LatLng latLng, final int codeLength: 12}) {
+      {@required final GeoHashLatLng latLng, final int codeLength: 12}) {
     if (codeLength > 20 || (identical(1.0, 1) && codeLength > 12)) {
       //Javascript can only handle 32 bit ints reliably.
       throw ArgumentError(
@@ -131,8 +131,8 @@ class GeoHash {
     return buffer.toString();
   }
 
-  /// Get the [LatLngBounds] for the [geoHash].
-  static LatLngBounds getExtents(String geoHash) {
+  /// Get the [GeoHashLatLngBounds] for the [geoHash].
+  static GeoHashLatLngBounds getExtents(String geoHash) {
     final codeLength = geoHash.length;
     if (codeLength > 20 || (identical(1.0, 1) && codeLength > 12)) {
       //Javascript can only handle 32 bit ints reliably.
@@ -177,12 +177,13 @@ class GeoHash {
       final height = latitudeDiff * (180 / pow(2.0, 52));
       final width = longitudeDiff * (360 / pow(2.0, 52));
 
-      final southWest = LatLng(lat: southWestLatitude, lng: southWestLongitude);
-      final northEast = LatLng(
+      final southWest =
+          GeoHashLatLng(lat: southWestLatitude, lng: southWestLongitude);
+      final northEast = GeoHashLatLng(
           lat: southWestLatitude + height.toDouble(),
           lng: southWestLongitude + width.toDouble());
 
-      return LatLngBounds(sw: southWest, ne: northEast);
+      return GeoHashLatLngBounds(sw: southWest, ne: northEast);
     }
 
     longitudeInt = longitudeInt << (52 - longitudeBits);
@@ -196,24 +197,25 @@ class GeoHash {
     final height = latitudeDiff.toDouble() * (180 / pow(2.0, 52));
     final width = longitudeDiff.toDouble() * (360 / pow(2.0, 52));
 
-    final southWest = LatLng(lat: southWestLatitude, lng: southWestLongitude);
-    final northEast = LatLng(
+    final southWest =
+        GeoHashLatLng(lat: southWestLatitude, lng: southWestLongitude);
+    final northEast = GeoHashLatLng(
         lat: southWestLatitude + height, lng: southWestLongitude + width);
 
-    return LatLngBounds(sw: southWest, ne: northEast);
+    return GeoHashLatLngBounds(sw: southWest, ne: northEast);
   }
 
-  /// Get the [LatLng] center of a specific [geoHash] rectangle.
-  static LatLng decode(String geoHash) => getExtents(geoHash).center;
+  /// Get the [GeoHashLatLng] center of a specific [geoHash] rectangle.
+  static GeoHashLatLng decode(String geoHash) => getExtents(geoHash).center;
 }
 
 /// Holds a coordinate point.
-class LatLng {
-  /// Create a new instance of [LatLng].
-  LatLng({@required this.lat, @required this.lng});
+class GeoHashLatLng {
+  /// Create a new instance of [GeoHashLatLng].
+  GeoHashLatLng({@required this.lat, @required this.lng});
 
   /// Creates an instance from json.
-  factory LatLng.fromJson(Map<String, dynamic> json) => LatLng(
+  factory GeoHashLatLng.fromJson(Map<String, dynamic> json) => GeoHashLatLng(
       // ignore: avoid_as
       lat: (json['lat'] as num)?.toDouble(),
       // ignore: avoid_as
@@ -230,22 +232,23 @@ class LatLng {
 }
 
 /// Holds a coordinate bounds.
-class LatLngBounds {
-  /// Create a new instance of [LatLngBounds].
-  LatLngBounds({@required this.sw, @required this.ne});
+class GeoHashLatLngBounds {
+  /// Create a new instance of [GeoHashLatLngBounds].
+  GeoHashLatLngBounds({@required this.sw, @required this.ne});
 
   /// Creates an instance from json.
-  factory LatLngBounds.fromJson(Map<String, dynamic> json) => LatLngBounds(
-      // ignore: avoid_as
-      sw: LatLng.fromJson(json['sw'] as Map<String, dynamic>),
-      // ignore: avoid_as
-      ne: LatLng.fromJson(json['ne'] as Map<String, dynamic>));
+  factory GeoHashLatLngBounds.fromJson(Map<String, dynamic> json) =>
+      GeoHashLatLngBounds(
+          // ignore: avoid_as
+          sw: GeoHashLatLng.fromJson(json['sw'] as Map<String, dynamic>),
+          // ignore: avoid_as
+          ne: GeoHashLatLng.fromJson(json['ne'] as Map<String, dynamic>));
 
   /// SouthWest corner of the bounds.
-  final LatLng sw;
+  final GeoHashLatLng sw;
 
   /// NorthEast corner of the bounds.
-  final LatLng ne;
+  final GeoHashLatLng ne;
 
   /// Width of the bounds.
   double get width => ne.lng - sw.lng;
@@ -254,8 +257,8 @@ class LatLngBounds {
   double get height => ne.lat - sw.lat;
 
   /// Center of the bounds
-  LatLng get center =>
-      LatLng(lat: sw.lat + height / 2, lng: sw.lng + width / 2);
+  GeoHashLatLng get center =>
+      GeoHashLatLng(lat: sw.lat + height / 2, lng: sw.lng + width / 2);
 
   /// Returns the json form of the object.
   Map<String, dynamic> toJson() => {'sw': sw.toJson(), 'ne': ne.toJson()};

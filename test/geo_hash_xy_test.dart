@@ -14,34 +14,40 @@ void main() {
 
     test('Random address', () {
       expect(
-          GeoHash.encode(latLng: LatLng(lat: 29.0, lng: 34.5), codeLength: 5),
+          GeoHash.encode(
+              latLng: GeoHashLatLng(lat: 29.0, lng: 34.5), codeLength: 5),
           'sv0sc');
     });
     test('Random address', () {
       expect(
-          _testDistance(LatLng(lat: 29.0, lng: 34.5), GeoHash.decode('sv0sc')),
+          _testDistance(
+              GeoHashLatLng(lat: 29.0, lng: 34.5), GeoHash.decode('sv0sc')),
           closeTo(0.0, 0.1));
     });
     test('Random address', () {
-      expect(GeoHash.encode(latLng: LatLng(lat: 38.5332370, lng: -121.4347070)),
+      expect(
+          GeoHash.encode(
+              latLng: GeoHashLatLng(lat: 38.5332370, lng: -121.4347070)),
           '9qcehwvbqhp8');
     });
     test('Random address', () {
       expect(
-          _testDistance(LatLng(lat: 38.5332370, lng: -121.4347070),
+          _testDistance(GeoHashLatLng(lat: 38.5332370, lng: -121.4347070),
               GeoHash.decode('9qcehwvbqhp8')),
           closeTo(0.0, 1e-6));
     });
     test('Wikipedia example', () {
       expect(
           _testDistance(
-              LatLng(lat: 42.605, lng: -5.603), GeoHash.decode('ezs42')),
+              GeoHashLatLng(lat: 42.605, lng: -5.603), GeoHash.decode('ezs42')),
           closeTo(0.0, 1e-4));
     });
 
     test('To json', () {
       expect(
-          LatLngBounds(ne: LatLng(lat: 1, lng: 2), sw: LatLng(lat: -3, lng: -4))
+          GeoHashLatLngBounds(
+                  ne: GeoHashLatLng(lat: 1, lng: 2),
+                  sw: GeoHashLatLng(lat: -3, lng: -4))
               .toJson(),
           {
             'ne': {'lat': 1, 'lng': 2},
@@ -51,7 +57,7 @@ void main() {
 
     test('From json', () {
       expect(
-          LatLngBounds.fromJson({
+          GeoHashLatLngBounds.fromJson({
             'ne': {'lat': 1, 'lng': 2},
             'sw': {'lat': -3, 'lng': -4}
           }).toJson(),
@@ -65,5 +71,5 @@ void main() {
 
 /// Computes the "distance" between two points using pythagoras and not
 /// accounting for the curvature of the earth.
-double _testDistance(LatLng latLngA, LatLng latLngB) =>
+double _testDistance(GeoHashLatLng latLngA, GeoHashLatLng latLngB) =>
     sqrt(pow(latLngB.lat - latLngA.lat, 2) + pow(latLngB.lng - latLngA.lng, 2));

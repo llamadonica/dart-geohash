@@ -1,5 +1,5 @@
 name: geo_hash_xy
-version: 0.2.4
+version: 0.2.5
 description: A simple geohashing library for dart forked from DISCONTINUED geohash [https://pub.dev/packages/geohash]
 homepage: https://github.com/BMEC/dart-geo_hash_xy
 repository: https://github.com/BMEC/dart-geo_hash_xy
