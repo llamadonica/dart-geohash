@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.0
+- Migrated to NNBD
+
 ## 0.2.1
 - Some fixes for use in javascript.
 
