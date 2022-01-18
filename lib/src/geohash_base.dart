@@ -8,8 +8,7 @@ import 'dart:math';
 /// A collection of static functions to work with geohashes, as exlpained
 /// [here](https://en.wikipedia.org/wiki/Geohash)
 class Geohash {
-  /// Constructs an instance of [Geohash].
-  const Geohash();
+  const Geohash._();
 
   static const Map<String, int> _base32CharToNumber = const <String, int>{
     '0': 0,
