@@ -2,6 +2,3 @@
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
 library geohash.example;
-
-import 'package:geohash/geohash.dart';
-

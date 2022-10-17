@@ -1,6 +1,8 @@
 // Copyright (c) 2015-2018, <your name>. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
+// ignore_for_file: avoid_catches_without_on_clauses, avoid_classes_with_only_static_members
+
 library geohash.base;
 
 import 'dart:math';
@@ -78,8 +80,7 @@ class Geohash {
   ];
 
   /// Encode a latitude and longitude pair into a  geohash string.
-  static String encode(final double latitude, final double longitude,
-      {final int codeLength: 12}) {
+  static String encode(final double latitude, final double longitude, {final int codeLength: 12}) {
     if (codeLength > 20 || (identical(1.0, 1) && codeLength > 12)) {
       //Javascript can only handle 32 bit ints reliably.
       throw new ArgumentError(
@@ -97,9 +98,7 @@ class Geohash {
         : latitudeBase2.floor() >> (52 - latitudeBits);
 
     final stringBuffer = [];
-    for (var localCodeLength = codeLength;
-        localCodeLength > 0;
-        localCodeLength--) {
+    for (var localCodeLength = codeLength; localCodeLength > 0; localCodeLength--) {
       int bigEndCode, littleEndCode;
       if (localCodeLength % 2 == 0) {
         //Even slot. Latitude is more significant.
@@ -135,17 +134,14 @@ class Geohash {
     var latitudeInt = 0;
     var longitudeInt = 0;
     var longitudeFirst = true;
-    for (var character
-        in geohash.codeUnits.map((r) => new String.fromCharCode(r))) {
-      int thisSequence;
+    for (var character in geohash.codeUnits.map((r) => new String.fromCharCode(r))) {
+      int? thisSequence;
       try {
         thisSequence = _base32CharToNumber[character];
       } catch (error) {
         throw new ArgumentError('$geohash was not a geohash string');
       }
-      final bigBits = ((thisSequence & 16) >> 2) |
-          ((thisSequence & 4) >> 1) |
-          (thisSequence & 1);
+      final bigBits = ((thisSequence! & 16) >> 2) | ((thisSequence & 4) >> 1) | (thisSequence & 1);
       final smallBits = ((thisSequence & 8) >> 2) | ((thisSequence & 2) >> 1);
       if (longitudeFirst) {
         longitudeInt = (longitudeInt << 3) | bigBits;
@@ -167,10 +163,9 @@ class Geohash {
       final longitudeFloat = longitudeInt.toDouble() * longitudeDiff;
       final latitude = latitudeFloat * (180 / pow(2.0, 52)) - 90;
       final longitude = longitudeFloat * (360 / pow(2.0, 52)) - 180;
-      final height = latitudeDiff * (180 / pow(2.0, 52));
-      final width = longitudeDiff * (360 / pow(2.0, 52));
-      return Rectangle<double>(
-          latitude + height, longitude, height.toDouble(), width.toDouble());
+      final num height = latitudeDiff * (180 / pow(2.0, 52));
+      final num width = longitudeDiff * (360 / pow(2.0, 52));
+      return Rectangle<double>(latitude + height, longitude, height.toDouble(), width.toDouble());
     }
 
     longitudeInt = longitudeInt << (52 - longitudeBits);
