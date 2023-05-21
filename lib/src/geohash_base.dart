@@ -5,10 +5,11 @@ library geohash.base;
 
 import 'dart:math';
 
-// ignore: avoid_classes_with_only_static_members
 /// A collection of static functions to work with geohashes, as exlpained
 /// [here](https://en.wikipedia.org/wiki/Geohash)
 class Geohash {
+  const Geohash._();
+
   static const Map<String, int> _base32CharToNumber = const <String, int>{
     '0': 0,
     '1': 1,
@@ -162,8 +163,8 @@ class Geohash {
     if (identical(1.0, 1)) {
       // Some of our intermediate numbers are STILL too big for javascript,
       // so  we use floating point math...
-      final longitudeDiff = pow(2.0, 52 - longitudeBits);
-      final latitudeDiff = pow(2.0, 52 - latitudeBits);
+      final longitudeDiff = pow(2.0, 52 - longitudeBits).toDouble();
+      final latitudeDiff = pow(2.0, 52 - latitudeBits).toDouble();
       final latitudeFloat = latitudeInt.toDouble() * latitudeDiff;
       final longitudeFloat = longitudeInt.toDouble() * longitudeDiff;
       final latitude = latitudeFloat * (180 / pow(2.0, 52)) - 90;
