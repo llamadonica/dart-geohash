@@ -5,6 +5,7 @@ library geohash.base;
 
 import 'dart:math';
 
+// ignore: avoid_classes_with_only_static_members
 /// A collection of static functions to work with geohashes, as exlpained
 /// [here](https://en.wikipedia.org/wiki/Geohash)
 class Geohash {
@@ -139,7 +140,7 @@ class Geohash {
         in geohash.codeUnits.map((r) => new String.fromCharCode(r))) {
       int thisSequence;
       try {
-        thisSequence = _base32CharToNumber[character];
+        thisSequence = _base32CharToNumber[character]!;
       } catch (error) {
         throw new ArgumentError('$geohash was not a geohash string');
       }

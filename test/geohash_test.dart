@@ -29,5 +29,12 @@ void main() {
               .distanceTo(Geohash.decode('9qcehwvbqhp8')),
           closeTo(0.0, 1e-6));
     });
+    test('Extents', () {
+      final extents = Geohash.getExtents('sv0sc');
+      expect(extents.top, closeTo(34.4970703125, 0.01));
+      expect(extents.left, closeTo(29.00390625, 0.01));
+      expect(extents.right, closeTo(29.0478515625, 0.01));
+      expect(extents.bottom, closeTo(34.541015625, 0.01));
+    });
   });
 }
