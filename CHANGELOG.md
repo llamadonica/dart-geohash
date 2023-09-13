@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.0
+- Modernising for Flutter 2.18.0
+
 ## 0.2.1
 - Some fixes for use in javascript.
 

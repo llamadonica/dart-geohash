@@ -6,3 +6,8 @@
 build/
 packages
 pubspec.lock
+/.dart_tool/package_config.json
+/.dart_tool/package_config_subset
+/.dart_tool/version
+/.dart_tool/pub/bin/test/
+/.dart_tool/test/
